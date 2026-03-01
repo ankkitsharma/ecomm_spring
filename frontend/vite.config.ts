@@ -4,11 +4,7 @@ import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 
 export default defineConfig({
-  plugins: [
-    tsConfigPaths(),
-    tanstackStart(),
-    react(),
-  ],
+  plugins: [tsConfigPaths(), tanstackStart(), react()],
   server: {
     host: '0.0.0.0',
     port: 3000,
