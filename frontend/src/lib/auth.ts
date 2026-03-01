@@ -1,15 +1,16 @@
 import Keycloak from 'keycloak-js'
 
-const keycloak = new Keycloak({
-  url: 'http://localhost:8081',
-  realm: 'ecomm-realm',
-  clientId: 'ecomm-frontend',
-})
-
-let isInitialized = false
+let keycloak: Keycloak | null = null
 
 export async function initAuth() {
-  if (isInitialized) return keycloak
+  if (typeof window === 'undefined') return null
+  if (keycloak) return keycloak
+  
+  keycloak = new Keycloak({
+    url: 'http://localhost:8081',
+    realm: 'ecomm-realm',
+    clientId: 'ecomm-frontend',
+  })
   
   try {
     const authenticated = await keycloak.init({
@@ -17,7 +18,6 @@ export async function initAuth() {
       silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
       pkceMethod: 'S256',
     })
-    isInitialized = true
     return keycloak
   } catch (error) {
     console.error('Failed to initialize Keycloak:', error)
@@ -26,7 +26,7 @@ export async function initAuth() {
 }
 
 export const getAuth = () => keycloak
-export const login = () => keycloak.login()
-export const logout = () => keycloak.logout()
-export const isAuthenticated = () => keycloak.authenticated
-export const getToken = () => keycloak.token
+export const login = () => keycloak?.login()
+export const logout = () => keycloak?.logout()
+export const isAuthenticated = () => !!keycloak?.authenticated
+export const getToken = () => keycloak?.token
