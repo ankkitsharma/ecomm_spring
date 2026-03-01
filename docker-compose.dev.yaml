@@ -47,8 +47,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-ecomm}
       SPRING_DATASOURCE_USERNAME: ${DB_USER:-user}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/ecomm-realm/protocol/openid-connect/certs
-      JWT_EXPECTED_ISSUER: http://localhost:8081/realms/ecomm-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: ${KEYCLOAK_INTERNAL_URL}/realms/${KC_REALM}/protocol/openid-connect/certs
+      JWT_EXPECTED_ISSUER: ${KEYCLOAK_EXTERNAL_URL}/realms/${KC_REALM}
+      FRONTEND_URL: ${FRONTEND_URL}
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,10 +73,10 @@ services:
     environment:
       - PORT=3000
       - HOST=0.0.0.0
-      - VITE_KEYCLOAK_URL=http://localhost:8081
-      - VITE_KEYCLOAK_REALM=ecomm-realm
-      - VITE_KEYCLOAK_CLIENT_ID=ecomm-frontend
-      - VITE_API_URL=http://localhost:8080
+      - VITE_KEYCLOAK_URL=${KEYCLOAK_EXTERNAL_URL}
+      - VITE_KEYCLOAK_REALM=${KC_REALM}
+      - VITE_KEYCLOAK_CLIENT_ID=${KC_CLIENT_ID}
+      - VITE_API_URL=${BACKEND_EXTERNAL_URL}
     depends_on:
       - backend
     develop:
