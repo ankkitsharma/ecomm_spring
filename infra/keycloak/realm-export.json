@@ -12,8 +12,14 @@
       "enabled": true,
       "publicClient": true,
       "directAccessGrantsEnabled": true,
-      "redirectUris": ["http://localhost:3000/*"],
-      "webOrigins": ["http://localhost:3000"],
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "https://localhost/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "https://localhost"
+      ],
       "standardFlowEnabled": true
     }
   ],
