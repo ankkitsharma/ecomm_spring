@@ -45,7 +45,8 @@ services:
       - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecomm
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/ecomm-realm
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/ecomm-realm/protocol/openid-connect/certs
+      JWT_EXPECTED_ISSUER: http://localhost:8081/realms/ecomm-realm
     depends_on:
       postgres:
         condition: service_healthy

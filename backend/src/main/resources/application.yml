@@ -19,8 +19,12 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8081/realms/ecomm-realm
+          # This is the internal URI used for fetching public keys
           jwk-set-uri: http://localhost:8081/realms/ecomm-realm/protocol/openid-connect/certs
+
+# This is the external issuer URI that browser tokens use
+jwt:
+  expected-issuer: http://localhost:8081/realms/ecomm-realm
 
 springdoc:
   api-docs:
