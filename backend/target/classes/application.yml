@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ecomm
-    username: user
-    password: password
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ecomm}
+    username: ${DB_USERNAME:user}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -20,11 +20,11 @@ spring:
       resourceserver:
         jwt:
           # This is the internal URI used for fetching public keys
-          jwk-set-uri: http://localhost:8081/realms/ecomm-realm/protocol/openid-connect/certs
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:8081/realms/ecomm-realm/protocol/openid-connect/certs}
 
 # This is the external issuer URI that browser tokens use
 jwt:
-  expected-issuer: http://localhost:8081/realms/ecomm-realm
+  expected-issuer: ${EXPECTED_ISSUER:http://localhost:8081/realms/ecomm-realm}
 
 springdoc:
   api-docs:

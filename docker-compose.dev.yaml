@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     container_name: ecomm-db
     environment:
-      POSTGRES_DB: ecomm
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME:-ecomm}
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d ecomm"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-ecomm}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -21,12 +21,12 @@ services:
     container_name: ecomm-auth
     command: start-dev --import-realm
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/ecomm
-      KC_DB_USERNAME: user
-      KC_DB_PASSWORD: password
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-ecomm}
+      KC_DB_USERNAME: ${DB_USER:-user}
+      KC_DB_PASSWORD: ${DB_PASSWORD:-password}
       KC_HEALTH_ENABLED: "true"
     ports:
       - "8081:8080"
@@ -44,7 +44,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecomm
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-ecomm}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-password}
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/ecomm-realm/protocol/openid-connect/certs
       JWT_EXPECTED_ISSUER: http://localhost:8081/realms/ecomm-realm
     depends_on:
@@ -70,6 +72,10 @@ services:
     environment:
       - PORT=3000
       - HOST=0.0.0.0
+      - VITE_KEYCLOAK_URL=http://localhost:8081
+      - VITE_KEYCLOAK_REALM=ecomm-realm
+      - VITE_KEYCLOAK_CLIENT_ID=ecomm-frontend
+      - VITE_API_URL=http://localhost:8080
     depends_on:
       - backend
     develop:
