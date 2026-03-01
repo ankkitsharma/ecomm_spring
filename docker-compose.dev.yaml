@@ -10,6 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d ecomm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
@@ -26,7 +31,8 @@ services:
     ports:
       - "8081:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./infra/keycloak/realm-export.json:/opt/keycloak/data/import/realm.json
 
@@ -41,8 +47,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecomm
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/ecomm-realm
     depends_on:
-      - postgres
-      - keycloak
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
     develop:
       watch:
         - action: sync
@@ -58,6 +66,9 @@ services:
     container_name: ecomm-frontend
     ports:
       - "3000:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
     depends_on:
       - backend
     develop:
@@ -65,11 +76,12 @@ services:
         - action: sync
           path: ./frontend/src
           target: /app/src
-        - action: sync
-          path: ./frontend/app
-          target: /app/app
         - action: rebuild
           path: ./frontend/package.json
+    deploy:
+      resources:
+        limits:
+          memory: 2G
 
 volumes:
   postgres_data:

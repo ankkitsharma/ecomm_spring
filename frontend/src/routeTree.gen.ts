@@ -1,8 +1,10 @@
-// This is a placeholder for TanStack Router's routeTree generation.
-// In a real project, this is automatically updated when running the dev server.
 import { Route as rootRoute } from './routes/__root'
 import { Route as indexRoute } from './routes/index'
+import { Route as productsRoute } from './routes/products'
+import { Route as protectedRoute } from './routes/protected'
 
 export const routeTree = rootRoute.addChildren([
   indexRoute,
+  productsRoute,
+  protectedRoute,
 ])
