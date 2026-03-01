@@ -1,26 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { isAuthenticated, hasRole } from '../lib/auth'
 
-export const Route = createFileRoute("/")({
-  component: Home,
+export const Route = createFileRoute('/')({
+  component: RedirectHome,
 })
 
-function Home() {
-  return (
-    <div className="py-8">
-      <h1 className="mb-4 text-4xl font-bold text-gray-900">Welcome to E-Comm Store</h1>
-      <p className="text-lg text-gray-600">
-        A modern e-commerce boilerplate using TanStack Start and Spring Boot.
-      </p>
-      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="rounded-lg border border-gray-100 bg-white p-6 shadow-md">
-          <h2 className="mb-2 text-xl font-semibold">Public Products</h2>
-          <p className="text-gray-600">Anyone can view our products list.</p>
-        </div>
-        <div className="rounded-lg border border-gray-100 bg-white p-6 shadow-md">
-          <h2 className="mb-2 text-xl font-semibold">Secure Auth</h2>
-          <p className="text-gray-600">Login to see your protected profile and order history.</p>
-        </div>
-      </div>
-    </div>
-  )
+function RedirectHome() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate({ to: '/products', replace: true })
+    } else if (hasRole('ADMIN')) {
+      navigate({ to: '/admin', replace: true })
+    } else if (hasRole('SELLER')) {
+      navigate({ to: '/seller', replace: true })
+    } else {
+      navigate({ to: '/products', replace: true })
+    }
+  }, [navigate])
+
+  return null
 }

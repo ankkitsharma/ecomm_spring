@@ -1,28 +1,26 @@
 package com.ecomm.controller;
 
-import com.ecomm.model.Product;
-import com.ecomm.repository.ProductRepository;
+import com.ecomm.dto.ProductDTO;
+import com.ecomm.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductRepository productRepository;
-
-    public ProductController(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
+    private final ProductService productService;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> getAllProducts() {
+        return productService.getAllProducts();
     }
 
-    @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productRepository.save(product);
+    @GetMapping("/{id}")
+    public ProductDTO getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 }

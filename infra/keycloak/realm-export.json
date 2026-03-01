@@ -2,10 +2,27 @@
   "realm": "ecomm-realm",
   "enabled": true,
   "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
   "resetPasswordAllowed": true,
   "rememberMe": true,
   "verifyEmail": false,
   "loginWithEmailAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "BUYER",
+        "description": "Standard buyer role"
+      },
+      {
+        "name": "SELLER",
+        "description": "Seller role for managing products"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Platform administrator"
+      }
+    ]
+  },
   "clients": [
     {
       "clientId": "ecomm-frontend",
@@ -13,28 +30,31 @@
       "publicClient": true,
       "directAccessGrantsEnabled": true,
       "redirectUris": [
-        "http://localhost:3000/*",
-        "https://localhost/*"
+        "http://localhost:3000/*"
       ],
       "webOrigins": [
-        "http://localhost:3000",
-        "https://localhost"
+        "http://localhost:3000"
       ],
-      "standardFlowEnabled": true
+      "standardFlowEnabled": true,
+      "fullScopeAllowed": true
     }
   ],
   "users": [
     {
-      "username": "testuser",
-      "email": "test@example.com",
+      "username": "admin@ecomm.com",
+      "email": "admin@ecomm.com",
       "enabled": true,
-      "firstName": "Test",
-      "lastName": "User",
-      "emailVerified": true,
+      "firstName": "System",
+      "lastName": "Admin",
+      "realmRoles": [
+        "ADMIN",
+        "BUYER",
+        "SELLER"
+      ],
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "admin",
           "temporary": false
         }
       ]

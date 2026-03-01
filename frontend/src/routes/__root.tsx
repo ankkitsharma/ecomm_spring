@@ -1,8 +1,9 @@
-import { createRootRoute, Link, Outlet, HeadContent, Scripts } from "@tanstack/react-router"
+import { createRootRoute, Outlet, HeadContent, Scripts } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
-import { initAuth, isAuthenticated, login, logout } from "../lib/auth"
+import { initAuth } from "../lib/auth"
+import { Navbar } from "../components/Navbar"
 import styles from "../styles.css?url"
 
 const queryClient = new QueryClient()
@@ -12,7 +13,7 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "E-Comm App" },
+      { title: "E-Store | Premium Shopping Experience" },
     ],
     links: [{ rel: "stylesheet", href: styles }],
   }),
@@ -23,7 +24,15 @@ function RootComponent() {
   const [authReady, setAuthReady] = useState(false)
 
   useEffect(() => {
-    initAuth().then(() => setAuthReady(true))
+    // Only run on client
+    console.log('Client-side useEffect triggered')
+    initAuth().then(() => {
+        console.log('initAuth finished successfully')
+        setAuthReady(true)
+    }).catch(err => {
+        console.error('initAuth failed:', err)
+        setAuthReady(true)
+    })
   }, [])
 
   return (
@@ -31,48 +40,29 @@ function RootComponent() {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="bg-gray-50 font-sans text-gray-900 antialiased">
         <QueryClientProvider client={queryClient}>
-          <div className="min-h-screen bg-gray-50">
-            <nav className="flex items-center justify-between border-b bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-4">
-                <Link to="/" className="mr-4 text-xl font-bold text-blue-600">
-                  E-Store
-                </Link>
-                <Link to="/products" className="font-medium text-gray-700 hover:text-blue-500">
-                  Products
-                </Link>
-                <Link to="/protected" className="font-medium text-gray-700 hover:text-blue-500">
-                  Protected Profile
-                </Link>
+          {!authReady ? (
+            <div className="flex h-screen flex-col items-center justify-center bg-white">
+              <div className="flex flex-col items-center gap-4">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent shadow-xl shadow-blue-100"></div>
+                <p className="text-sm font-bold tracking-widest text-gray-400 uppercase">Initializing E-Store</p>
+                <button 
+                  onClick={() => setAuthReady(true)}
+                  className="mt-8 rounded-full bg-blue-600 px-6 py-2 text-xs font-bold text-white shadow-lg transition-all active:scale-95"
+                >
+                  Force Start App
+                </button>
               </div>
-
-              <div className="flex gap-3">
-                {!authReady ? (
-                  <span className="text-sm text-gray-400">Loading Auth...</span>
-                ) : isAuthenticated() ? (
-                  <button
-                    onClick={() => logout()}
-                    className="rounded-md border border-red-100 bg-red-50 px-4 py-1.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
-                  >
-                    Logout
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => login()}
-                      className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-                    >
-                      Login / Register
-                    </button>
-                  </div>
-                )}
-              </div>
-            </nav>
-            <main className="mx-auto max-w-5xl p-4">
-              <Outlet />
-            </main>
-          </div>
+            </div>
+          ) : (
+            <>
+              <Navbar />
+              <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                <Outlet />
+              </main>
+            </>
+          )}
           <TanStackRouterDevtools />
         </QueryClientProvider>
         <Scripts />

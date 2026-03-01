@@ -9,72 +9,76 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProtectedRouteImport } from './routes/protected'
-import { Route as ProductsRouteImport } from './routes/products'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
+import { Route as ProductDetailsRouteImport } from './routes/products.$productId'
+import { Route as BuyerIndexRouteImport } from './routes/buyer/index'
+import { Route as SellerIndexRouteImport } from './routes/seller/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as RegisterRouteImport } from './routes/register'
 
-const ProtectedRoute = ProtectedRouteImport.update({
-  id: '/protected',
-  path: '/protected',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductsRoute = ProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const ProductDetailsRoute = ProductDetailsRouteImport.update({
+  id: '/products/$productId',
+  path: '/products/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const BuyerIndexRoute = BuyerIndexRouteImport.update({
+  id: '/buyer/',
+  path: '/buyer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const SellerIndexRoute = SellerIndexRouteImport.update({
+  id: '/seller/',
+  path: '/seller/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/products': typeof ProductsRoute
-  '/protected': typeof ProtectedRoute
-}
-export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/products': typeof ProductsRoute
-  '/protected': typeof ProtectedRoute
-}
-export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/products': typeof ProductsRoute
-  '/protected': typeof ProtectedRoute
-}
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/products' | '/protected'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/products' | '/protected'
-  id: '__root__' | '/' | '/products' | '/protected'
-  fileRoutesById: FileRoutesById
-}
-export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ProductsRoute: typeof ProductsRoute
-  ProtectedRoute: typeof ProtectedRoute
+  '/products': typeof ProductsIndexRoute
+  '/products/$productId': typeof ProductDetailsRoute
+  '/buyer': typeof BuyerIndexRoute
+  '/seller': typeof SellerIndexRoute
+  '/admin': typeof AdminIndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/register': typeof RegisterRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/protected': {
-      id: '/protected'
-      path: '/protected'
-      fullPath: '/protected'
-      preLoaderRoute: typeof ProtectedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/products': {
-      id: '/products'
-      path: '/products'
-      fullPath: '/products'
-      preLoaderRoute: typeof ProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -82,23 +86,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$productId': {
+      id: '/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof ProductDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buyer/': {
+      id: '/buyer/'
+      path: '/buyer'
+      fullPath: '/buyer'
+      preLoaderRoute: typeof BuyerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seller/': {
+      id: '/seller/'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof SellerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ProductsRoute: ProductsRoute,
-  ProtectedRoute: ProtectedRoute,
-}
-export const routeTree = rootRouteImport
-  ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
+export const routeTree = rootRouteImport._addFileChildren({
+  IndexRoute,
+  ProductsIndexRoute,
+  ProductDetailsRoute,
+  BuyerIndexRoute,
+  SellerIndexRoute,
+  AdminIndexRoute,
+  CheckoutRoute,
+  RegisterRoute,
+})
