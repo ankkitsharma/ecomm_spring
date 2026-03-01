@@ -1,100 +1,56 @@
-# E-Commerce Project Plan: Spring Boot & TanStack Start
+# E-Commerce Platform Revamp Plan
 
-This document outlines the architectural plan and implementation roadmap for the e-commerce application.
+## 1. Architectural & Structural Issues
+*   **Monolithic Frontend**: Bundling Buyer, Seller, and Admin interfaces into a single application increases the bundle size, complicates routing, and exposes admin/seller routes to standard users.
+*   **Lack of Monorepo Structure**: Sharing code (UI components, API clients, TypeScript types, validation schemas) across three separate frontends requires a proper monorepo tool (like Turborepo, Nx, or npm/yarn workspaces).
+*   **Auth Flow UX**: Relying on Keycloak's default login/signup screens breaks the immersion and branding of the application. Custom UI pages are needed for a seamless experience.
+*   **Token Management**: Storing tokens on the client-side (LocalStorage/Memory) poses security risks. A Backend-For-Frontend (BFF) pattern or HttpOnly cookies should be considered for a production-grade app.
 
-## 1. Project Structure
-```text
-/ecomm-spring
-├── backend/                # Spring Boot Application
-├── frontend/               # TanStack Start Application
-├── docker-compose.yaml     # Production/Staging Compose
-├── docker-compose.dev.yaml # Development Compose (with Watch)
-├── plan.md                 # Project Plan
-└── .github/workflows/      # CI/CD Pipelines
-```
+## 2. Proposed Architecture
+*   **Monorepo Setup**: Migrate to an `npm` or `pnpm` workspace with `apps/` and `packages/` directories.
+    *   `apps/buyer`: The main storefront (migrated from the current `frontend`).
+    *   `apps/seller`: Dashboard for inventory and order management.
+    *   `apps/admin`: Platform administration, user management, and global analytics.
+    *   `packages/ui`: Shared React components (Buttons, Inputs, Navbars).
+    *   `packages/config`: Shared ESLint, TypeScript, and Tailwind configurations.
+    *   `packages/api`: Shared Axios instances, DTO types, and API hooks.
+*   **Backend**: Maintain the Spring Boot modular monolith but strictly separate controllers and security filters (`/api/buyer/*`, `/api/seller/*`, `/api/admin/*`, `/api/auth/*`).
 
-## 2. Tech Stack
+## 3. Custom Authentication Strategy
+To achieve custom Login/Signup pages without redirecting to Keycloak's standard UI, we have two primary paths:
+*   **Path A: Direct Access Grants (ROPC)**: The frontend collects credentials via custom forms and sends them to the backend. The backend acts as a proxy, exchanging credentials for Keycloak tokens and returning them to the client (or setting HttpOnly cookies).
+*   **Path B: Keycloak Custom Theme**: Create a highly customized, React-based Keycloak theme that matches the exact design system of the apps. *(Path A is generally preferred for absolute control over the React app's state and routing).*
 
-### Backend (Spring Boot)
-- **Framework:** Spring Boot 3.x (Java 21)
-- **Database:** PostgreSQL
-- **Security:** Spring Security with Keycloak (OIDC/OAuth2)
-- **API Documentation:** Springdoc OpenAPI (Swagger UI)
-- **Type Safety:** OpenAPI Generator for TypeScript types
-- **Persistence:** Spring Data JPA
+## 4. UI/UX Enhancements
+*   **Design System**: Implement a cohesive design system using Radix UI/shadcn principles combined with Tailwind CSS.
+*   **Micro-interactions**: Add Framer Motion for fluid transitions, page routing animations, and interactive feedback.
+*   **Skeleton Loaders**: Replace basic "Loading..." text with animated skeleton components for better perceived performance.
+*   **Responsive Excellence**: Ensure all dashboards and storefronts are perfectly optimized for mobile, tablet, and desktop.
 
-### Frontend (TanStack Start)
-- **Framework:** TanStack Start (Full-stack React framework)
-- **Styling:** Tailwind CSS + shadcn/ui
-- **Data Fetching:** TanStack Query (React Query)
-- **State Management:** TanStack Router (Built-in to Start)
-- **Auth:** Keycloak JS SDK integration
+## 5. Step-by-Step Execution Plan
 
-### DevOps & CI/CD
-- **Containerization:** Docker
-- **Orchestration:** Docker Compose
-- **Development Experience:** `docker compose watch` for hot-reloading across the stack.
-- **CI/CD:** GitHub Actions (Build, Test, Lint, and Docker Image Push)
+### Phase 1: Monorepo Transformation
+1.  Initialize a workspace root.
+2.  Move the current `frontend` to `apps/buyer`.
+3.  Create `apps/seller` and `apps/admin` using Vite + React + TanStack Router.
+4.  Extract shared configurations into a `packages/` directory.
 
----
+### Phase 2: Backend Auth & Proxy Setup
+1.  Implement an Auth Controller in Spring Boot to handle custom login and registration requests.
+2.  Integrate Keycloak Admin REST Client in the backend to programmatically create users and assign roles based on the custom signup form.
+3.  Configure HttpOnly cookies for token delivery to enhance security across the three apps.
 
-## 3. Implementation Phases
+### Phase 3: Frontend Scaffolding & Custom Auth UI
+1.  Build the custom Login and Signup pages in `apps/buyer`, `apps/seller`, and `apps/admin`.
+2.  Integrate Zod & React Hook Form for robust validation.
+3.  Connect the forms to the new backend Auth Controller.
 
-### Phase 1: Infrastructure & Backend Foundation
-1. **Docker Setup:**
-   - Create `docker-compose.dev.yaml` with PostgreSQL and Keycloak services.
-   - Configure Keycloak Realm for `ecomm-app` with a client for the frontend.
-2. **Spring Boot Scaffolding:**
-   - Initialize Spring Boot with Web, JPA, Postgres, Security, and Validation.
-   - Configure `application-dev.yml` to connect to Dockerized Postgres.
-3. **OpenAPI Configuration:**
-   - Setup `springdoc-openapi`.
-   - Implement a sample `ProductController` with basic CRUD to serve as the type-generation source.
+### Phase 4: Role-Specific App Development
+1.  **Buyer App**: Refine the product catalog, add a robust shopping cart state, and polish the checkout flow.
+2.  **Seller App**: Build data tables with sorting/filtering for inventory, and add interactive charts for sales metrics.
+3.  **Admin App**: Develop global user management, platform health monitoring, and dispute resolution interfaces.
 
-### Phase 2: Authentication (Keycloak)
-1. **Keycloak Configuration:**
-   - Set up "Email/Password" login flow.
-   - Create test users.
-2. **Spring Security Integration:**
-   - Configure `SecurityFilterChain` to validate JWTs from Keycloak.
-   - Implement `@PreAuthorize` on protected routes.
-
-### Phase 3: Frontend Foundation (TanStack Start)
-1. **Scaffold Frontend:**
-   - Initialize TanStack Start project.
-   - Install Tailwind CSS and shadcn/ui.
-2. **Type Generation Setup:**
-   - Add a script to fetch `swagger.json` from the backend and generate TypeScript types using `openapi-typescript`.
-3. **React Query & API Client:**
-   - Setup `QueryClient`.
-   - Create an Axios/Fetch instance using the generated types.
-
-### Phase 4: Routing & Auth UI
-1. **Navigation:**
-   - Implement layout with non-protected (Home, Products) and protected (Profile, Orders) routes.
-2. **Keycloak Integration:**
-   - Implement a `useAuth` hook or context using `keycloak-js`.
-   - Create a `ProtectedRoute` component for redirecting unauthenticated users.
-
-### Phase 5: CI/CD & Dev Experience
-1. **Docker Compose Watch:**
-   - Configure `docker-compose.dev.yaml` to sync local changes to containers.
-2. **GitHub Actions:**
-   - Create `ci.yaml` to run tests on every PR.
-   - Create `cd.yaml` to build and push Docker images.
-
----
-
-## 4. Specific Workflows
-
-### API Type Generation Workflow
-1. Developer updates Backend controller/DTO.
-2. Run `npm run generate-api` in `frontend/`.
-3. `openapi-typescript` reads `http://localhost:8080/v3/api-docs` and updates `frontend/src/types/api.d.ts`.
-4. Frontend code immediately reflects schema changes with full IntelliSense.
-
-### Development Workflow
-1. Run `docker compose -f docker-compose.dev.yaml up`.
-2. Backend runs with hot-reload (via Spring DevTools).
-3. Frontend runs with TanStack Start dev server.
-4. Keycloak handles auth locally at `localhost:8080/auth`.
+### Phase 5: Polish & Deployment
+1.  Update Docker Compose to build and serve the three distinct frontends and the backend proxy.
+2.  Configure Caddy/Nginx to route subdomains (e.g., `shop.localhost`, `seller.localhost`, `admin.localhost`) to the correct containers.
+3.  Perform final end-to-end testing.
