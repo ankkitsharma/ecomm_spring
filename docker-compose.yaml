@@ -56,7 +56,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./apps/backend
       dockerfile: Dockerfile
     container_name: ecomm-backend-prod
     environment:
